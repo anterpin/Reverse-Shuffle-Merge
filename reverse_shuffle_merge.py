@@ -1,30 +1,29 @@
 # Complete the reverseShuffleMerge function below.
-count = {}
-actual_count = {}
-passed_count = {}
+class Counter:
+    def __init__(self,s):
+        self.count = {x:s.count(x) for x in set(s)}
+        self.actual_count = {}
+        self.passed_count = {}
+        
+    def can_discard(self,letter,temp_passed_letter):
+        total = self.count[letter]
+        used = self.actual_count.get(letter,0)
+        discarded = self.passed_count.get(letter,0) + temp_passed_letter - 1 - used
+        return discarded < int(total/2)
 
-def can_discard(letter,temp_passed_letter):
-    global count
-    global actual_count
-    global passed_count
-    total = count[letter]
-    used = actual_count.get(letter,0)
-    discarded = passed_count.get(letter,0) + temp_passed_letter - 1 - used
-    return discarded < int(total/2)
+    def can_use(self,letter):
+        total = self.count[letter]
+        used = self.actual_count.get(letter,0)
+        return used < int(total/2)
 
-def can_use(letter):
-    global count
-    global actual_count
-    total = count[letter]
-    used = actual_count.get(letter,0)
-    return used < int(total/2)
+    def update_passed(self,temp_passed):
+        for letter, count in temp_passed.items():
+            self.passed_count[letter] = self.passed_count.get(letter,0) + count
+           
+    def increase_actual_count(self,letter):
+        self.actual_count[letter] = self.actual_count.get(letter,0) + 1
 
-def update_passed(temp_passed):
-    global passed_count
-    for letter, count in temp_passed.items():
-        passed_count[letter] = passed_count.get(letter,0) + count
-
-def get_min_non_discartable_letter(index,s):
+def get_min_non_discartable_letter(index,counter,s):
     global passed_count
     minimum = '{'
     minimum_index = index
@@ -33,31 +32,26 @@ def get_min_non_discartable_letter(index,s):
     while i >= 0:
         letter = s[i]
         temp_passed[letter] = temp_passed.get(letter,0) + 1
-        if can_use(letter):
+        if counter.can_use(letter):
             if letter < minimum:
                 minimum = letter
                 minimum_index = i
-                update_passed(temp_passed)
+                counter.update_passed(temp_passed)
                 temp_passed = {}
-        if not can_discard(letter,temp_passed.get(letter,0)):
+        if not counter.can_discard(letter,temp_passed.get(letter,0)):
             break
         i += -1
     return (minimum,minimum_index)
 
 def reverseShuffleMerge(s):
-    global count
-    global actual_count
-    global passed_count
-    count = {x:s.count(x) for x in set(s)}
-    passed_count = {}
-    actual_count = {}
+    counter = Counter(s)
     index = len(s)-1
     actual = ''
     i = 0
     while i < int(len(s)/2):
-        (letter,letter_index) = get_min_non_discartable_letter(index,s)
+        (letter,letter_index) = get_min_non_discartable_letter(index,couter,s)
         actual += letter
-        actual_count[letter] = actual_count.get(letter,0) + 1
+        counter.increase_actual_count()
         index = letter_index - 1
         i += 1
     return actual
