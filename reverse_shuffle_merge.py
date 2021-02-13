@@ -49,7 +49,7 @@ def reverseShuffleMerge(s):
     actual = ''
     i = 0
     while i < int(len(s)/2):
-        (letter,letter_index) = get_min_non_discartable_letter(index,couter,s)
+        (letter,letter_index) = get_min_non_discartable_letter(index,counter,s)
         actual += letter
         counter.increase_actual_count()
         index = letter_index - 1
